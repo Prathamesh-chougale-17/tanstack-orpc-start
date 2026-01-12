@@ -1,5 +1,5 @@
 import { createORPCClient } from '@orpc/client'
-import { RPCLink } from '@orpc/client/fetch'
+import { OpenAPILink } from '@orpc/openapi-client/fetch'
 import { getRequestHeaders } from '@tanstack/react-start/server'
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { createRouterClient } from '@orpc/server'
@@ -22,7 +22,7 @@ const getORPCClient = createIsomorphicFn()
     }),
   )
   .client((): RouterClient<typeof router> => {
-    const link = new RPCLink({
+    const link = new OpenAPILink(router, {
       url: `${window.location.origin}/api/rpc`,
     })
 

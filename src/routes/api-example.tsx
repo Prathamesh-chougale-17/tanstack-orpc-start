@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { client } from '@/lib/orpc'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { orpc } from '@/lib/orpc-query'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -16,112 +17,116 @@ export const Route = createFileRoute('/api-example')({
   component: ApiExample,
 })
 
-type Todo = {
-  id: number
-  text: string
-  completed: boolean
-}
-
 function ApiExample() {
+  const queryClient = useQueryClient()
   const [name, setName] = useState('')
-  const [greeting, setGreeting] = useState('')
   const [divideA, setDivideA] = useState('')
   const [divideB, setDivideB] = useState('')
-  const [divideResult, setDivideResult] = useState('')
-  const [todos, setTodos] = useState<Array<Todo>>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
-  const handleHello = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const result = await client.hello()
-      setGreeting(result.message)
-    } catch (err) {
-      setError('Failed to call hello: ' + (err as Error).message)
-    } finally {
-      setLoading(false)
-    }
+  // Query: Get todos (auto-fetched on mount)
+  const todosQuery = useQuery(orpc.getTodos.queryOptions())
+
+  // Query: Get current time (manual fetch)
+  const timeQuery = useQuery({
+    ...orpc.getCurrentTime.queryOptions(),
+    enabled: false, // Don't auto-fetch
+  })
+
+  // Mutation: Hello (no input)
+  const helloMutation = useMutation(
+    orpc.hello.mutationOptions({
+      onSuccess: (data) => {
+        setSuccessMessage(data.message)
+      },
+    }),
+  )
+
+  // Mutation: Greet (with input validation)
+  const greetMutation = useMutation(
+    orpc.greet.mutationOptions({
+      onSuccess: (data) => {
+        setSuccessMessage(data.message)
+        setName('') // Clear input on success
+      },
+    }),
+  )
+
+  // Mutation: Divide (with error handling)
+  const divideMutation = useMutation(
+    orpc.divide.mutationOptions({
+      onSuccess: (data) => {
+        setSuccessMessage(`Result: ${data.result}`)
+      },
+    }),
+  )
+
+  const handleHello = () => {
+    helloMutation.mutate({})
   }
 
-  const handleGreet = async () => {
+  const handleGreet = () => {
     if (!name.trim()) {
-      setError('Please enter a name')
       return
     }
-    setLoading(true)
-    setError('')
-    try {
-      const result = await client.greet({ name })
-      setGreeting(result.message)
-    } catch (err) {
-      setError('Failed to greet: ' + (err as Error).message)
-    } finally {
-      setLoading(false)
-    }
+    greetMutation.mutate({ name })
   }
 
-  const handleDivide = async () => {
+  const handleDivide = () => {
     const a = parseFloat(divideA)
     const b = parseFloat(divideB)
 
     if (isNaN(a) || isNaN(b)) {
-      setError('Please enter valid numbers')
       return
     }
 
-    setLoading(true)
-    setError('')
-    try {
-      const result = await client.divide({ a, b })
-      setDivideResult(`Result: ${result.result}`)
-    } catch (err) {
-      setError('Failed to divide: ' + (err as Error).message)
-    } finally {
-      setLoading(false)
-    }
+    divideMutation.mutate({ a, b })
   }
 
-  const handleGetTodos = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const result = await client.getTodos()
-      setTodos(result)
-    } catch (err) {
-      setError('Failed to get todos: ' + (err as Error).message)
-    } finally {
-      setLoading(false)
-    }
+  const handleGetTime = () => {
+    timeQuery.refetch()
   }
 
-  const handleGetTime = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const result = await client.getCurrentTime()
-      setGreeting(`Current time: ${result.timestamp} (${result.timezone})`)
-    } catch (err) {
-      setError('Failed to get time: ' + (err as Error).message)
-    } finally {
-      setLoading(false)
-    }
+  const handleRefreshTodos = () => {
+    queryClient.invalidateQueries({ queryKey: orpc.getTodos.key() })
   }
+
+  // Combine all loading states
+  const isLoading =
+    helloMutation.isPending ||
+    greetMutation.isPending ||
+    divideMutation.isPending ||
+    timeQuery.isFetching
+
+  // Get the first error from any mutation or query
+  const error =
+    helloMutation.error ||
+    greetMutation.error ||
+    divideMutation.error ||
+    todosQuery.error ||
+    timeQuery.error
 
   return (
     <div className="container mx-auto p-8">
-      <h1 className="mb-8 text-3xl font-bold">oRPC API Examples</h1>
+      <h1 className="mb-8 text-3xl font-bold">
+        oRPC + TanStack Query Examples
+      </h1>
 
       {error && (
         <div className="mb-4 rounded-lg border border-red-500 bg-red-50 p-4 text-red-900">
-          {error}
+          {error.message}
         </div>
       )}
 
-      {greeting && (
+      {successMessage && (
         <div className="mb-4 rounded-lg border border-green-500 bg-green-50 p-4 text-green-900">
-          {greeting}
+          {successMessage}
+        </div>
+      )}
+
+      {timeQuery.data && (
+        <div className="mb-4 rounded-lg border border-blue-500 bg-blue-50 p-4 text-blue-900">
+          Current time: {timeQuery.data.timestamp} ({timeQuery.data.timezone})
         </div>
       )}
 
@@ -130,11 +135,11 @@ function ApiExample() {
           <CardHeader>
             <CardTitle>Simple Hello</CardTitle>
             <CardDescription>
-              Call a basic procedure with no inputs
+              Mutation with no inputs using useMutation hook
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleHello} disabled={loading}>
+            <Button onClick={handleHello} disabled={isLoading}>
               Call hello()
             </Button>
           </CardContent>
@@ -144,7 +149,7 @@ function ApiExample() {
           <CardHeader>
             <CardTitle>Greet with Name</CardTitle>
             <CardDescription>
-              Call a procedure with input validation
+              Mutation with input validation and success callback
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -155,9 +160,13 @@ function ApiExample() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your name"
+                  onKeyDown={(e) => e.key === 'Enter' && handleGreet()}
                 />
               </Field>
-              <Button onClick={handleGreet} disabled={loading}>
+              <Button
+                onClick={handleGreet}
+                disabled={isLoading || !name.trim()}
+              >
                 Call greet()
               </Button>
             </FieldGroup>
@@ -193,12 +202,12 @@ function ApiExample() {
                   />
                 </Field>
               </div>
-              <Button onClick={handleDivide} disabled={loading}>
+              <Button
+                onClick={handleDivide}
+                disabled={isLoading || !divideA || !divideB}
+              >
                 Call divide()
               </Button>
-              {divideResult && (
-                <p className="text-sm font-medium">{divideResult}</p>
-              )}
             </FieldGroup>
           </CardContent>
         </Card>
@@ -206,19 +215,23 @@ function ApiExample() {
         <Card>
           <CardHeader>
             <CardTitle>Get Todos</CardTitle>
-            <CardDescription>Async procedure example</CardDescription>
+            <CardDescription>
+              Auto-fetched query using useQuery hook
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button
-              onClick={handleGetTodos}
-              disabled={loading}
+              onClick={handleRefreshTodos}
+              disabled={todosQuery.isFetching}
               className="mb-4"
             >
-              Call getTodos()
+              {todosQuery.isFetching ? 'Refreshing...' : 'Refresh Todos'}
             </Button>
-            {todos.length > 0 && (
+            {todosQuery.isLoading ? (
+              <p className="text-sm text-gray-500">Loading todos...</p>
+            ) : todosQuery.data && todosQuery.data.length > 0 ? (
               <ul className="space-y-2">
-                {todos.map((todo) => (
+                {todosQuery.data.map((todo) => (
                   <li key={todo.id} className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -230,18 +243,20 @@ function ApiExample() {
                   </li>
                 ))}
               </ul>
-            )}
+            ) : null}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle>Current Time</CardTitle>
-            <CardDescription>Get server timestamp</CardDescription>
+            <CardDescription>
+              Manual query with enabled: false (fetch on demand)
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleGetTime} disabled={loading}>
-              Call getCurrentTime()
+            <Button onClick={handleGetTime} disabled={timeQuery.isFetching}>
+              {timeQuery.isFetching ? 'Fetching...' : 'Get Current Time'}
             </Button>
           </CardContent>
         </Card>
