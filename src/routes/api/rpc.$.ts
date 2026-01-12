@@ -1,13 +1,13 @@
-import { RPCHandler } from '@orpc/server/fetch'
+import { OpenAPIHandler } from '@orpc/openapi/fetch'
 import { createFileRoute } from '@tanstack/react-router'
-import { onError } from '@orpc/server'
+import { CORSPlugin } from '@orpc/server/plugins'
+import { ZodSmartCoercionPlugin } from '@orpc/zod'
 import { router } from '@/server/router'
 
-const handler = new RPCHandler(router, {
-  interceptors: [
-    onError((error) => {
-      console.error(error)
-    }),
+const handler = new OpenAPIHandler(router, {
+  plugins: [
+    new CORSPlugin(),
+    new ZodSmartCoercionPlugin(),
   ],
 })
 
@@ -17,7 +17,7 @@ export const Route = createFileRoute('/api/rpc/$')({
       ANY: async ({ request }) => {
         const { response } = await handler.handle(request, {
           prefix: '/api/rpc',
-          context: {}, // Provide initial context if needed
+          context: {},
         })
 
         return response ?? new Response('Not Found', { status: 404 })

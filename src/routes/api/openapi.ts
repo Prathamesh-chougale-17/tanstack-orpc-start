@@ -24,6 +24,15 @@ export const Route = createFileRoute('/api/openapi')({
               description: 'RPC endpoint',
             },
           ],
+          security: [{ bearerAuth: [] }],
+          components: {
+            securitySchemes: {
+              bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+              },
+            },
+          },
         })
 
         return new Response(JSON.stringify(spec, null, 2), {

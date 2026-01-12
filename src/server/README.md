@@ -193,19 +193,25 @@ MONGODB_DB_NAME=myapp
 
 ## OpenAPI Documentation
 
-The router automatically generates OpenAPI documentation available at `/api/openapi`.
+The router automatically generates OpenAPI documentation with interactive UI.
 
 The OpenAPI spec is generated from your router definition, including:
 - All procedure input/output schemas
 - Route paths and HTTP methods (from `.route()`)
 - Type-safe documentation
+- Bearer authentication schema
 
-View the spec:
-- **JSON**: Visit `http://localhost:3000/api/openapi` during development
-- **Swagger UI**: Use any OpenAPI viewer with the spec URL
-- **Postman**: Import the spec directly
+### Viewing Documentation
 
-The spec is automatically updated when you modify procedures in `src/server/router.ts`.
+- **Interactive UI**: Visit `http://localhost:3000/api/docs` for Scalar API documentation viewer
+  - Features interactive API testing
+  - Supports authentication tokens
+  - Live request/response examples
+- **JSON Spec**: Visit `http://localhost:3000/api/openapi` for raw OpenAPI JSON
+- **Swagger UI**: Use any OpenAPI viewer with the spec URL at `/api/openapi`
+- **Postman**: Import the spec directly from `/api/openapi`
+
+The spec is automatically updated when you modify procedures in `src/server/router/index.ts`.
 
 ## Validation Types
 
