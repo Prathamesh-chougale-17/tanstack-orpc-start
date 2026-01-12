@@ -16,13 +16,19 @@ export const Route = createFileRoute('/api-example')({
   component: ApiExample,
 })
 
+type Todo = {
+  id: number
+  text: string
+  completed: boolean
+}
+
 function ApiExample() {
   const [name, setName] = useState('')
   const [greeting, setGreeting] = useState('')
   const [divideA, setDivideA] = useState('')
   const [divideB, setDivideB] = useState('')
   const [divideResult, setDivideResult] = useState('')
-  const [todos, setTodos] = useState<any[]>([])
+  const [todos, setTodos] = useState<Array<Todo>>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
