@@ -2,11 +2,9 @@ import { ORPCError, os } from '@orpc/server'
 import { z } from 'zod'
 
 // Simple hello procedure (no input, no route)
-const hello = os
-  .output(z.object({ message: z.string() }))
-  .handler(() => {
-    return { message: 'Hello from oRPC!' }
-  })
+const hello = os.output(z.object({ message: z.string() })).handler(() => {
+  return { message: 'Hello from oRPC!' }
+})
 
 // Procedure with input validation and route
 const greet = os

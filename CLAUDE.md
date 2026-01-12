@@ -54,6 +54,7 @@ This project uses **oRPC** for type-safe client-server communication:
 
 - **Router definition**: `src/server/router.ts` - Defines all API procedures with input validation
 - **Server handler**: `src/routes/api/rpc.$.ts` - RPC handler endpoint at `/api/rpc/*`
+- **OpenAPI spec**: `src/routes/api/openapi.ts` - Auto-generated OpenAPI documentation at `/api/openapi`
 - **Client**: `src/lib/orpc.ts` - Isomorphic client that works on both server and client
 - **Example usage**: `src/routes/api-example.tsx` - Demonstrates calling procedures
 

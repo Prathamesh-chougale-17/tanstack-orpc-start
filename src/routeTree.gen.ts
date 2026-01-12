@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ApiExampleRouteImport } from './routes/api-example'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiOpenapiRouteImport } from './routes/api/openapi'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc.$'
 
 const ApiExampleRoute = ApiExampleRouteImport.update({
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiOpenapiRoute = ApiOpenapiRouteImport.update({
+  id: '/api/openapi',
+  path: '/api/openapi',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
   path: '/api/rpc/$',
@@ -32,30 +38,34 @@ const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-example': typeof ApiExampleRoute
+  '/api/openapi': typeof ApiOpenapiRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-example': typeof ApiExampleRoute
+  '/api/openapi': typeof ApiOpenapiRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api-example': typeof ApiExampleRoute
+  '/api/openapi': typeof ApiOpenapiRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api-example' | '/api/rpc/$'
+  fullPaths: '/' | '/api-example' | '/api/openapi' | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api-example' | '/api/rpc/$'
-  id: '__root__' | '/' | '/api-example' | '/api/rpc/$'
+  to: '/' | '/api-example' | '/api/openapi' | '/api/rpc/$'
+  id: '__root__' | '/' | '/api-example' | '/api/openapi' | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiExampleRoute: typeof ApiExampleRoute
+  ApiOpenapiRoute: typeof ApiOpenapiRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/openapi': {
+      id: '/api/openapi'
+      path: '/api/openapi'
+      fullPath: '/api/openapi'
+      preLoaderRoute: typeof ApiOpenapiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/rpc/$': {
       id: '/api/rpc/$'
       path: '/api/rpc/$'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiExampleRoute: ApiExampleRoute,
+  ApiOpenapiRoute: ApiOpenapiRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
 export const routeTree = rootRouteImport

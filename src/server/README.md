@@ -191,6 +191,22 @@ MONGODB_URI=mongodb://localhost:27017
 MONGODB_DB_NAME=myapp
 ```
 
+## OpenAPI Documentation
+
+The router automatically generates OpenAPI documentation available at `/api/openapi`.
+
+The OpenAPI spec is generated from your router definition, including:
+- All procedure input/output schemas
+- Route paths and HTTP methods (from `.route()`)
+- Type-safe documentation
+
+View the spec:
+- **JSON**: Visit `http://localhost:3000/api/openapi` during development
+- **Swagger UI**: Use any OpenAPI viewer with the spec URL
+- **Postman**: Import the spec directly
+
+The spec is automatically updated when you modify procedures in `src/server/router.ts`.
+
 ## Validation Types
 
 Use Zod for all input/output validation:
