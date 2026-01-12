@@ -5,10 +5,7 @@ import { ZodSmartCoercionPlugin } from '@orpc/zod'
 import { router } from '@/server/router'
 
 const handler = new OpenAPIHandler(router, {
-  plugins: [
-    new CORSPlugin(),
-    new ZodSmartCoercionPlugin(),
-  ],
+  plugins: [new CORSPlugin(), new ZodSmartCoercionPlugin()],
 })
 
 export const Route = createFileRoute('/api/rpc/$')({

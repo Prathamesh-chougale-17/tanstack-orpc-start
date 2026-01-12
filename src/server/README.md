@@ -18,18 +18,18 @@ oRPC procedures are built using a chainable API:
 ### Example Procedures
 
 #### Basic Procedure (with output validation)
+
 ```typescript
 import { os } from '@orpc/server'
 import { z } from 'zod'
 
-const hello = os
-  .output(z.object({ message: z.string() }))
-  .handler(() => {
-    return { message: 'Hello from oRPC!' }
-  })
+const hello = os.output(z.object({ message: z.string() })).handler(() => {
+  return { message: 'Hello from oRPC!' }
+})
 ```
 
 #### Procedure with Input, Output, and Route
+
 ```typescript
 const greet = os
   .input(z.object({ name: z.string().min(1) }))
@@ -44,6 +44,7 @@ const greet = os
 ```
 
 #### Async Procedure with Database
+
 ```typescript
 const getTodos = os
   .output(
@@ -66,6 +67,7 @@ const getTodos = os
 ```
 
 #### Error Handling
+
 ```typescript
 import { ORPCError, os } from '@orpc/server'
 
@@ -133,6 +135,7 @@ const getUserProfile = os
 ```
 
 Context is configured in:
+
 - `src/routes/api/rpc.$.ts` - Server-side context
 - `src/lib/orpc.ts` - Client-side context (for SSR)
 
@@ -150,6 +153,7 @@ Context is configured in:
 5. Call from client: `await client.yourProcedure(input)`
 
 **Example**:
+
 ```typescript
 const myNewProcedure = os
   .input(z.object({ id: z.number() }))
@@ -186,6 +190,7 @@ const getUsers = os
 ```
 
 Configure MongoDB connection in `.env.local`:
+
 ```
 MONGODB_URI=mongodb://localhost:27017
 MONGODB_DB_NAME=myapp
@@ -196,6 +201,7 @@ MONGODB_DB_NAME=myapp
 The router automatically generates OpenAPI documentation with interactive UI.
 
 The OpenAPI spec is generated from your router definition, including:
+
 - All procedure input/output schemas
 - Route paths and HTTP methods (from `.route()`)
 - Type-safe documentation

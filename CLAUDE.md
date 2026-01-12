@@ -62,6 +62,7 @@ This project uses **oRPC** for type-safe client-server communication:
 **Procedure Pattern**:
 
 oRPC procedures use a chainable API:
+
 1. `.input()` - Define input schema (optional)
 2. `.output()` - Define output schema (recommended)
 3. `.route()` - Define REST/OpenAPI metadata (optional)
