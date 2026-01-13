@@ -1,4 +1,9 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Link,
+  Scripts,
+  createRootRoute,
+} from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -29,7 +34,27 @@ export const Route = createRootRoute({
   }),
 
   shellComponent: RootDocument,
+  notFoundComponent: NotFound,
 })
+
+function NotFound() {
+  return (
+    <main className="mx-auto flex min-h-screen max-w-screen-sm flex-col items-center justify-center gap-3 px-6 text-center">
+      <p className="text-sm uppercase tracking-wide text-gray-500">404</p>
+      <h1 className="text-2xl font-semibold">Page not found</h1>
+      <p className="text-gray-600">
+        The page you are looking for does not exist or was moved. Please check
+        the address or return home.
+      </p>
+      <Link
+        to="/"
+        className="inline-flex items-center gap-2 rounded-md bg-black px-4 py-2 text-white transition hover:bg-neutral-800"
+      >
+        Go home
+      </Link>
+    </main>
+  )
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
